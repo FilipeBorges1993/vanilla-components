@@ -8,7 +8,7 @@
         <vanilla-form-label
           :label-for="name"
           :value="label"
-          @click="onClickLabel"
+          @click="formOnClickLabel"
         />
       </slot>
     </template>
@@ -16,10 +16,10 @@
     <div class="relative flex">
       <slot name="before" />
       <input
-        :id="uuid(name)"
+        :id="name"
         ref="input"
         v-model="internalValue"
-        :name="uuid(name)"
+        :name="name"
         type="text"
         :autocomplete="name"
         :class="[
@@ -31,12 +31,7 @@
         v-bind="$attrs"
       >
       <slot name="after" />
-      <div
-        v-if="hasErrors && showLeadingErrorIcon"
-        class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"
-      >
-        <ExclamationCircleIcon class="w-5 h-5 text-red-500" />
-      </div>
+      <vanilla-form-error-icon :show="hasErrors && showLeadingErrorIcon" />
     </div>
     <vanilla-form-errors
       v-if="hasErrors && showErrors"
@@ -48,26 +43,63 @@
     />
   </vanilla-input-layout>
 </template>
-<script>
-import {ExclamationCircleIcon} from "@heroicons/vue/solid";
-import UseFormInputs from "@/utils/UseFormInputs";
+
+<script setup>
+import {formOnClickLabel} from "@/utils/useForms";
 import VanillaInputLayout from "@/components/Inputs/Partials/Layout.vue";
 import VanillaFormErrors from "@/components/Inputs/Partials/Errors.vue";
+import VanillaFormErrorIcon from "@/components/Inputs/Partials/ErrorIcon.vue";
 import VanillaFormHelper from "@/components/Inputs/Partials/Helper.vue";
 import VanillaFormLabel from "@/components/Inputs/Partials/Label.vue";
 
-export default {
-    name: 'VanillaInputText',
-    components: {
-        VanillaFormLabel,
-        VanillaFormHelper,
-        VanillaFormErrors,
-        VanillaInputLayout,
-        ExclamationCircleIcon,
+defineProps({
+    label: {
+      type: [String, Number],
+      default: ''
     },
-    mixins: [
-      UseFormInputs
-    ],
-    inheritAttrs: false,
-};
+    name: {
+      type: String,
+      default: ''
+    },
+    nameSeed: {
+      type: String,
+      default: '',
+      required: false,
+    },
+    help: {
+      type: String,
+      default: ''
+    },
+    errors: {
+      type: [Array, String],
+      default: '',
+      sync: 'internalErrors',
+    },
+    showErrors: {
+      type: Boolean,
+      default: true,
+    },
+    showLeadingErrorIcon: {
+      type: Boolean,
+      default: true,
+    },
+    layout: {
+      type: [String],
+      default: 'default',
+      required: false,
+      validate: (rowStyle) => {
+        return ['default', 'content', 'standard', 'naked'].includes(rowStyle)
+      },
+    },
+    grouped: {
+      type: [String],
+      default: null,
+      required: false,
+      validate: (grouped) => {
+        return ['bellow', 'above'].includes(grouped)
+      },
+    }
+  }
+)
+
 </script>
