@@ -1,4 +1,4 @@
-import {onBeforeUnmount} from "vue";
+import { onBeforeUnmount, watch } from "vue";
 import forEach from 'lodash/forEach'
 
 export default {
@@ -37,3 +37,14 @@ export default {
         })
     }
 };
+
+export const useSyncProp = (origin, target, eventName) => {
+    watch(origin, value => {
+        target.value = value
+    })
+    watch(target, value => {
+        if (target.value !== value) {
+            emit(`${eventName}`, value);
+        }
+    })
+}

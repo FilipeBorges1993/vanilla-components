@@ -8,7 +8,7 @@
         <vanilla-form-label
           :label-for="name"
           :value="label"
-          @click="formOnClickLabel"
+          @click="focusInput"
         />
       </slot>
     </template>
@@ -45,14 +45,15 @@
 </template>
 
 <script setup>
-import {formOnClickLabel} from "@/utils/useForms";
 import VanillaInputLayout from "@/components/Inputs/Partials/Layout.vue";
 import VanillaFormErrors from "@/components/Inputs/Partials/Errors.vue";
 import VanillaFormErrorIcon from "@/components/Inputs/Partials/ErrorIcon.vue";
 import VanillaFormHelper from "@/components/Inputs/Partials/Helper.vue";
 import VanillaFormLabel from "@/components/Inputs/Partials/Label.vue";
+import { useGroupedPropValidator, useLayoutPropValidator } from "@/utils/usePropValidator";
+import { useSyncProp } from "@/utils/SyncProps";
 
-defineProps({
+const props = defineProps({
     label: {
       type: [String, Number],
       default: ''
@@ -87,19 +88,22 @@ defineProps({
       type: [String],
       default: 'default',
       required: false,
-      validate: (rowStyle) => {
-        return ['default', 'content', 'standard', 'naked'].includes(rowStyle)
-      },
+      validate: useLayoutPropValidator,
     },
     grouped: {
       type: [String],
       default: null,
       required: false,
-      validate: (grouped) => {
-        return ['bellow', 'above'].includes(grouped)
-      },
+      validate: useGroupedPropValidator,
     }
   }
 )
+
+const internalErrors = ref([]);
+
+useSyncProp(props.errors, internalErrors, 'update:errors')
+
+const input = ref(null)
+const focusInput = () => input.value.focus()
 
 </script>
